@@ -2,45 +2,122 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ludo Pro Edition</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Ludo Pro Final</title>
+    <style>
+        body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; font-family: sans-serif; color: white; margin: 0; padding: 20px; }
+        #game-container { position: relative; }
+        #board { width: 450px; height: 450px; background: white; position: relative; border: 8px solid #333; overflow: hidden; }
+        
+        /* Bases */
+        .home { position: absolute; width: 180px; height: 180px; display: grid; grid-template-columns: 1fr 1fr; padding: 20px; box-sizing: border-box; gap: 20px; z-index: 5; }
+        .red-home { top:0; left:0; background: #d63031; }
+        .green-home { top:0; right:0; background: #27ae60; }
+        .yellow-home { bottom:0; left:0; background: #fbc531; }
+        .blue-home { bottom:0; right:0; background: #0984e3; }
+        
+        .pocket { background: white; border-radius: 50%; border: 2px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; }
+        
+        /* Grid */
+        #path-container { display: grid; grid-template-columns: repeat(15, 30px); grid-template-rows: repeat(15, 30px); position: absolute; top:0; left:0; pointer-events: none; }
+        .cell { width: 30px; height: 30px; border: 0.5px solid #ccc; box-sizing: border-box; }
+        
+        /* Pieces */
+        .piece { width: 30px; height: 30px; border-radius: 50%; border: 3px solid #333; cursor: pointer; z-index: 100; pointer-events: auto; }
+        
+        /* Center */
+        .center { position: absolute; top: 180px; left: 180px; width: 90px; height: 90px; z-index: 10; border: 2px solid #333; background: white; }
+        .tri { position: absolute; width: 0; height: 0; border-style: solid; }
+        .rt { border-width: 45px 45px 0 0; border-color: #d63031 transparent; top:0; left:0; }
+        .gt { border-width: 0 45px 45px 0; border-color: transparent #27ae60; top:0; right:0; }
+        .yt { border-width: 45px 0 0 45px; border-color: transparent transparent transparent #fbc531; bottom:0; left:0; }
+        .bt { border-width: 0 0 45px 45px; border-color: transparent transparent #0984e3 transparent; bottom:0; right:0; }
+
+        .ui { margin-top: 20px; text-align: center; }
+        #roll-btn { padding: 15px 30px; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; background: #f1c40f; color: #333; }
+        #status-bar { margin-top: 10px; font-weight: bold; background: #2c3e50; padding: 10px; border-radius: 5px; border-bottom: 4px solid gold; min-width: 200px; }
+    </style>
 </head>
 <body>
     <div id="game-container">
         <div id="board">
-            <div class="home red-home" id="red-base">
-                <div class="pocket"></div><div class="pocket"></div>
-                <div class="pocket"></div><div class="pocket"></div>
-            </div>
-            <div class="home green-home" id="green-base">
-                <div class="pocket"></div><div class="pocket"></div>
-                <div class="pocket"></div><div class="pocket"></div>
-            </div>
-            <div class="home yellow-home" id="yellow-base">
-                <div class="pocket"></div><div class="pocket"></div>
-                <div class="pocket"></div><div class="pocket"></div>
-            </div>
-            <div class="home blue-home" id="blue-base">
-                <div class="pocket"></div><div class="pocket"></div>
-                <div class="pocket"></div><div class="pocket"></div>
-            </div>
+            <div class="home red-home" id="red-base"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
+            <div class="home green-home" id="green-base"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
+            <div class="home yellow-home" id="yellow-base"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
+            <div class="home blue-home" id="blue-base"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
             
             <div id="path-container"></div>
-
-            <div class="center-main">
-                <div class="t-red"></div><div class="t-green"></div>
-                <div class="t-blue"></div><div class="t-yellow"></div>
+            <div class="center">
+                <div class="tri rt"></div><div class="tri gt"></div>
+                <div class="tri yt"></div><div class="tri bt"></div>
             </div>
         </div>
-
-        <div class="ui">
-            <div id="dice-display">🎲</div>
-            <div id="dice">Waiting...</div>
-            <button id="roll-btn">ROLL DICE</button>
-            <p id="status">RED'S TURN</p>
-        </div>
     </div>
-    <script src="script.js"></script>
+
+    <div class="ui">
+        <div style="font-size: 50px;" id="dice-face">🎲</div>
+        <button id="roll-btn">ROLL DICE</button>
+        <div id="status-bar">RED'S TURN</div>
+    </div>
+
+    <script>
+        const container = document.getElementById('path-container');
+        for (let i = 0; i < 225; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            // Home path coloring
+            if (i >= 106 && i <= 110) cell.style.background = "#ff7675";
+            if (i >= 114 && i <= 118) cell.style.background = "#74b9ff";
+            container.appendChild(cell);
+        }
+
+        const colors = ['red', 'green', 'yellow', 'blue'];
+        let turn = 0;
+        let lastRoll = 0;
+
+        colors.forEach(c => {
+            const pockets = document.querySelectorAll(`.${c}-home .pocket`);
+            pockets.forEach(p => {
+                const pc = document.createElement('div');
+                pc.className = 'piece';
+                pc.style.backgroundColor = c;
+                pc.onclick = () => movePiece(pc, c);
+                p.appendChild(pc);
+            });
+        });
+
+        const btn = document.getElementById('roll-btn');
+        btn.onclick = () => {
+            lastRoll = Math.floor(Math.random() * 6) + 1;
+            const faces = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+            document.getElementById('dice-face').innerText = faces[lastRoll];
+            document.getElementById('status-bar').innerText = colors[turn].toUpperCase() + " ROLLED " + lastRoll;
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+        };
+
+        function movePiece(pc, color) {
+            if (color !== colors[turn]) return;
+            if (lastRoll === 0) return;
+
+            if (lastRoll === 6 && pc.parentElement.classList.contains('pocket')) {
+                document.getElementById('board').appendChild(pc);
+                pc.style.position = "absolute";
+                pc.style.left = "30px"; pc.style.top = "180px"; // Jump to start
+                lastRoll = 0;
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                document.getElementById('status-bar').innerText = "ROLL AGAIN!";
+            } else if (!pc.parentElement.classList.contains('pocket')) {
+                // Simplified move
+                pc.style.left = (parseInt(pc.style.left) + (lastRoll * 30)) + "px";
+                lastRoll = 0;
+                turn = (turn + 1) % 4;
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.style.backgroundColor = colors[turn];
+                document.getElementById('status-bar').innerText = colors[turn].toUpperCase() + "'S TURN";
+            }
+        }
+    </script>
 </body>
 </html>
