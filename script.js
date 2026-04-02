@@ -1,39 +1,33 @@
-let lastRoll = 0;
+const pathContainer = document.getElementById('path-container');
 
-// Dice Logic
+// 1. Create the grid squares (15x15)
+for (let i = 0; i < 225; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    
+    // Marking Safe Stops (Calculated indices for Ludo stops)
+    const safeIndices = [19, 31, 52, 91, 103, 117, 135, 201];
+    if (safeIndices.includes(i)) cell.classList.add('safe-stop');
+    
+    pathContainer.appendChild(cell);
+}
+
+// 2. Put 4 pieces in each home base
+const colors = ['red', 'green', 'yellow', 'blue'];
+colors.forEach(color => {
+    const pockets = document.querySelectorAll(`.${color}-home .pocket`);
+    pockets.forEach(pocket => {
+        const p = document.createElement('div');
+        p.className = 'piece';
+        p.style.backgroundColor = color;
+        pocket.appendChild(p);
+    });
+});
+
+// 3. Simple Dice
 document.getElementById('roll-btn').addEventListener('click', () => {
-    lastRoll = Math.floor(Math.random() * 6) + 1;
-    const diceFaces = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-    document.getElementById('dice-display').innerText = diceFaces[lastRoll];
-    document.getElementById('status').innerText = "Move " + lastRoll + " spaces!";
-});
-
-// Movement Logic (Simplified)
-// We add a "Click" listener to all pieces
-document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('piece')) {
-        if (lastRoll === 0) {
-            alert("Roll the dice first!");
-            return;
-        }
-        
-        // This moves the piece visually by adding "Margin"
-        // In a real game, we would use a path array, 
-        // but for a beginner, this 'jumps' the piece.
-        let currentMargin = parseInt(e.target.style.marginLeft) || 0;
-        e.target.style.marginLeft = (currentMargin + (lastRoll * 30)) + "px";
-        
-        document.getElementById('status').innerText = "Piece moved! Next turn.";
-        lastRoll = 0; // Reset roll after moving
-    }
-});
-
-// Setup pieces in bases
-const bases = ['red-base', 'green-base', 'blue-base', 'yellow-base'];
-bases.forEach(id => {
-    const base = document.getElementById(id);
-    const p = document.createElement('div');
-    p.className = 'piece';
-    p.style.backgroundColor = id.split('-')[0]; // Matches piece color to base
-    base.appendChild(p);
+    const roll = Math.floor(Math.random() * 6) + 1;
+    const faces = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+    document.getElementById('dice-display').innerText = faces[roll];
+    document.getElementById('status').innerText = "You rolled a " + roll + "!";
 });
