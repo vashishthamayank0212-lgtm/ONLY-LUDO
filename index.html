@@ -2,40 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ludo Pro</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game-container">
-        <div id="board">
-            <div class="home red-home" id="red-base">
-                <div class="pocket"></div><div class="pocket"></div>
-                <div class="pocket"></div><div class="pocket"></div>
-            </div>
-            <div class="home green-home" id="green-base">
-                <div class="pocket"></div><div class="pocket"></div>
-                <div class="pocket"></div><div class="pocket"></div>
-            </div>
-            <div class="home yellow-home" id="yellow-base">
-                <div class="pocket"></div><div class="pocket"></div>
-                <div class="pocket"></div><div class="pocket"></div>
-            </div>
-            <div class="home blue-home" id="blue-base">
-                <div class="pocket"></div><div class="pocket"></div>
-                <div class="pocket"></div><div class="pocket"></div>
-            </div>
-            <div id="path-container"></div>
-            <div class="center-main">
-                <div class="t-red"></div><div class="t-green"></div>
-                <div class="t-blue"></div><div class="t-yellow"></div>
-            </div>
+    <div id="board">
+        <div class="home red-home" id="red-base"></div>
+        <div class="home green-home" id="green-base"></div>
+        <div class="home yellow-home" id="yellow-base"></div>
+        <div class="home blue-home" id="blue-base"></div>
+        
+        <div id="cells-container"></div>
+
+        <div class="center">
+            <div class="tri red-t"></div><div class="tri green-t"></div>
+            <div class="tri blue-t"></div><div class="tri yellow-t"></div>
         </div>
-        <div class="ui">
-            <div id="dice-display">🎲</div>
-            <button id="roll-btn">ROLL DICE</button>
-            <p id="status">READY PLAYER 1</p>
-        </div>
+    </div>
+
+    <div class="controls">
+        <div id="dice">🎲</div>
+        <button id="roll-btn">ROLL DICE</button>
+        <p id="status">RED'S TURN</p>
     </div>
     <script src="script.js"></script>
 </body>
