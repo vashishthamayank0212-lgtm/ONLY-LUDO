@@ -1,40 +1,31 @@
-body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; font-family: sans-serif; padding: 20px; }
+/* ... keep your previous CSS ... */
 
-#board {
-    width: 450px; height: 450px; background: white;
-    position: relative; border: 10px solid #333;
+/* ADD THIS: Color the Home Stretches */
+/* Note: You need to know the index of the squares to color them perfectly */
+.cell:nth-child(n+107):nth-child(-n+111) { background: rgba(231, 76, 60, 0.2); } /* Red path */
+.cell:nth-child(n+115):nth-child(-n+119) { background: rgba(52, 152, 219, 0.2); } /* Blue path */
+
+/* DICE BUTTON GLOW */
+#roll-btn {
+    transition: 0.3s;
+    box-shadow: 0 0 15px rgba(255,255,255,0.2);
+    color: white;
+    text-shadow: 1px 1px 2px black;
 }
 
-.home { 
-    position: absolute; width: 180px; height: 180px; 
-    display: grid; grid-template-columns: 1fr 1fr; 
-    padding: 20px; box-sizing: border-box; gap: 20px; z-index: 5;
+#roll-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 25px white;
 }
 
-/* Pocket circles inside homes */
-.pocket { background: white; border-radius: 50%; border: 2px solid rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
+/* Status Text Animation */
+#status {
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: blink 2s infinite;
+}
 
-.red-home { top:0; left:0; background: #ff4d4d; }
-.green-home { top:0; right:0; background: #2ecc71; }
-.yellow-home { bottom:0; left:0; background: #f1c40f; }
-.blue-home { bottom:0; right:0; background: #3498db; }
-
-/* The Grid Cells */
-#path-container { display: grid; grid-template-columns: repeat(15, 30px); grid-template-rows: repeat(15, 30px); }
-.cell { width: 30px; height: 30px; border: 1px solid #999; box-sizing: border-box; }
-
-/* Safe Stops (Stars) */
-.safe-stop { background: #bdc3c7 !important; position: relative; }
-.safe-stop::after { content: "★"; position: absolute; left: 7px; top: 3px; color: #7f8c8d; }
-
-.center-main { position: absolute; top: 180px; left: 180px; width: 90px; height: 90px; z-index: 10; border: 2px solid #333; }
-.t-red, .t-green, .t-blue, .t-yellow { position: absolute; width: 0; height: 0; border-style: solid; }
-.t-red { border-width: 45px 45px 0 0; border-color: #ff4d4d transparent; top:0; left:0; }
-.t-green { border-width: 0 45px 45px 0; border-color: transparent #2ecc71; top:0; right:0; }
-.t-yellow { border-width: 45px 0 0 45px; border-color: transparent transparent transparent #f1c40f; bottom:0; left:0; }
-.t-blue { border-width: 0 0 45px 45px; border-color: transparent transparent #3498db; bottom:0; right:0; }
-
-.piece { width: 22px; height: 22px; border-radius: 50%; border: 3px solid #333; box-shadow: 0 3px 5px rgba(0,0,0,0.3); }
-
-.ui { margin-top: 20px; text-align: center; color: white; }
-button { padding: 10px 25px; background: #f1c40f; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+@keyframes blink {
+    50% { opacity: 0.5; }
+}
