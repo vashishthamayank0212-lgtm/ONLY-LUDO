@@ -1,35 +1,20 @@
-body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; padding: 20px; color: white; font-family: sans-serif; }
+/* Update your home colors to these richer tones */
+.red-home { background: #d63031; }
+.green-home { background: #27ae60; }
+.yellow-home { background: #fbc531; }
+.blue-home { background: #0984e3; }
 
-#board {
-    width: 450px; height: 450px; background: white;
-    position: relative; border: 8px solid #333;
+/* The "Home Stretch" Colored Lines */
+/* This colors the specific middle rows for each player */
+.cell:nth-child(n+107):nth-child(-n+111) { background: #ff7675 !important; border: 1px solid #d63031; } /* Red path */
+.cell:nth-child(n+7):nth-child(15n+7) { background: #55efc4 !important; } /* Green path stretch */
+
+/* Turn Indicator */
+#status {
+    background: #2c3e50;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-size: 14px;
+    border-bottom: 3px solid gold;
 }
-
-/* Base Areas */
-.home { position: absolute; width: 180px; height: 180px; z-index: 5; display: grid; grid-template-columns: 1fr 1fr; padding: 20px; box-sizing: border-box; gap: 20px; }
-.red-home { top:0; left:0; background: #ff4d4d; }
-.green-home { top:0; right:0; background: #2ecc71; }
-.yellow-home { bottom:0; left:0; background: #f1c40f; }
-.blue-home { bottom:0; right:0; background: #3498db; }
-
-/* Grid Cells */
-#cells-container { display: grid; grid-template-columns: repeat(15, 30px); grid-template-rows: repeat(15, 30px); position: absolute; top:0; left:0; }
-.cell { width: 30px; height: 30px; border: 0.5px solid #ddd; box-sizing: border-box; }
-
-/* Pieces */
-.piece { 
-    width: 25px; height: 25px; border-radius: 50%; 
-    border: 3px solid #333; margin: auto; 
-    box-shadow: 0 4px 4px rgba(0,0,0,0.3);
-}
-
-/* Center Triangles */
-.center { position: absolute; top: 180px; left: 180px; width: 90px; height: 90px; z-index: 10; background: white; }
-.tri { position: absolute; width: 0; height: 0; border-style: solid; }
-.red-t { border-width: 45px 45px 0 0; border-color: #ff4d4d transparent; top:0; left:0; }
-.green-t { border-width: 0 45px 45px 0; border-color: transparent #2ecc71; top:0; right:0; }
-.yellow-t { border-width: 45px 0 0 45px; border-color: transparent transparent transparent #f1c40f; bottom:0; left:0; }
-.blue-t { border-width: 0 0 45px 45px; border-color: transparent transparent #3498db; bottom:0; right:0; }
-
-.controls { margin-top: 20px; text-align: center; }
-#roll-btn { padding: 10px 20px; background: #ff4d4d; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 5px; }
