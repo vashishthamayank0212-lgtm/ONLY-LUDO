@@ -1,37 +1,40 @@
-body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; padding: 20px; color: white; font-family: sans-serif; }
+body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; font-family: sans-serif; padding: 20px; }
 
 #board {
-    width: 450px;
-    height: 450px;
-    background: #fff;
-    position: relative;
-    border: 8px solid #333;
+    width: 450px; height: 450px; background: white;
+    position: relative; border: 10px solid #333;
 }
 
-/* Home Bases */
-.home { position: absolute; width: 180px; height: 180px; display: flex; align-items: center; justify-content: center; z-index: 5; }
+.home { 
+    position: absolute; width: 180px; height: 180px; 
+    display: grid; grid-template-columns: 1fr 1fr; 
+    padding: 20px; box-sizing: border-box; gap: 20px; z-index: 5;
+}
+
+/* Pocket circles inside homes */
+.pocket { background: white; border-radius: 50%; border: 2px solid rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
+
 .red-home { top:0; left:0; background: #ff4d4d; }
 .green-home { top:0; right:0; background: #2ecc71; }
 .yellow-home { bottom:0; left:0; background: #f1c40f; }
 .blue-home { bottom:0; right:0; background: #3498db; }
 
-/* The Paths */
-.path-h { position: absolute; top: 180px; left: 0; width: 450px; height: 90px; background: #eee; border-top: 2px solid #333; border-bottom: 2px solid #333; }
-.path-v { position: absolute; left: 180px; top: 0; width: 90px; height: 450px; background: #eee; border-left: 2px solid #333; border-right: 2px solid #333; }
+/* The Grid Cells */
+#path-container { display: grid; grid-template-columns: repeat(15, 30px); grid-template-rows: repeat(15, 30px); }
+.cell { width: 30px; height: 30px; border: 1px solid #999; box-sizing: border-box; }
 
-/* The Center Triangles */
-.center-main { position: absolute; top: 180px; left: 180px; width: 90px; height: 90px; background: white; z-index: 10; overflow: hidden; }
+/* Safe Stops (Stars) */
+.safe-stop { background: #bdc3c7 !important; position: relative; }
+.safe-stop::after { content: "★"; position: absolute; left: 7px; top: 3px; color: #7f8c8d; }
+
+.center-main { position: absolute; top: 180px; left: 180px; width: 90px; height: 90px; z-index: 10; border: 2px solid #333; }
 .t-red, .t-green, .t-blue, .t-yellow { position: absolute; width: 0; height: 0; border-style: solid; }
-
 .t-red { border-width: 45px 45px 0 0; border-color: #ff4d4d transparent; top:0; left:0; }
 .t-green { border-width: 0 45px 45px 0; border-color: transparent #2ecc71; top:0; right:0; }
 .t-yellow { border-width: 45px 0 0 45px; border-color: transparent transparent transparent #f1c40f; bottom:0; left:0; }
 .t-blue { border-width: 0 0 45px 45px; border-color: transparent transparent #3498db; bottom:0; right:0; }
 
-/* Pieces */
-.piece { width: 30px; height: 30px; border-radius: 50%; border: 3px solid #333; z-index: 15; cursor: pointer; transition: 0.2s; }
-.piece:hover { transform: scale(1.2); }
+.piece { width: 22px; height: 22px; border-radius: 50%; border: 3px solid #333; box-shadow: 0 3px 5px rgba(0,0,0,0.3); }
 
-.ui { margin-top: 20px; text-align: center; }
-#dice-display { font-size: 50px; }
-button { padding: 10px 20px; font-weight: bold; background: #f1c40f; border: none; border-radius: 5px; cursor: pointer; }
+.ui { margin-top: 20px; text-align: center; color: white; }
+button { padding: 10px 25px; background: #f1c40f; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
