@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Ludo Pro - Silent Flow</title>
+    <title>Ludo Pro - Perfect Stars</title>
     <style>
         body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; font-family: sans-serif; color: white; margin: 0; padding: 20px; }
         #board { width: 450px; height: 450px; background: white; position: relative; border: 10px solid #333; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
@@ -15,14 +15,15 @@
         
         .pocket { background: white; border-radius: 50%; border: 2px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; }
         
-        #path-container { display: grid; grid-template-columns: repeat(15, 30px); grid-template-rows: repeat(15, 30px); position: absolute; top:0; left:0; }
+        #path-container { display: grid; grid-template-columns: repeat(15, 30px); grid-template-rows: repeat(15, 30px); position: absolute; top:0; left:0; z-index: 1; }
         .cell { width: 30px; height: 30px; border: 0.5px solid #ddd; box-sizing: border-box; position: relative; }
         
-        /* Corrected Stars */
+        /* Corrected Star Positions */
         .safe-stop { background: #dfe6e9 !important; }
-        .safe-stop::after { content: "★"; position: absolute; left: 7px; top: 2px; color: #636e72; font-size: 18px; }
+        .safe-stop::after { content: "★"; position: absolute; left: 6px; top: 1px; color: #636e72; font-size: 20px; }
         
-        .piece { width: 26px; height: 26px; border-radius: 50%; border: 3px solid #333; cursor: pointer; z-index: 100; transition: transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.4); margin: auto; }
+        /* Pieces - Added Z-INDEX and visibility fix */
+        .piece { width: 26px; height: 26px; border-radius: 50%; border: 3px solid #333; cursor: pointer; z-index: 999 !important; position: relative; transition: transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.4); margin: auto; }
 
         .center { position: absolute; top: 180px; left: 180px; width: 90px; height: 90px; z-index: 10; border: 2px solid #333; background: white; }
         .tri { position: absolute; width: 0; height: 0; border-style: solid; }
@@ -32,50 +33,49 @@
         .bt { border-width: 0 0 45px 45px; border-color: transparent transparent #0984e3; bottom:0; right:0; }
 
         .ui { margin-top: 20px; text-align: center; }
-        #roll-btn { padding: 15px 40px; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; color: white; transition: 0.2s; }
+        #roll-btn { padding: 15px 40px; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; color: white; }
         #status-bar { margin-top: 15px; font-weight: bold; background: #2c3e50; padding: 12px; border-radius: 8px; border-bottom: 4px solid gold; width: 250px; }
     </style>
 </head>
 <body>
     <div id="board">
-        <div class="home red-home" id="red-base"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
-        <div class="home green-home" id="green-base"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
-        <div class="home yellow-home" id="yellow-base"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
-        <div class="home blue-home" id="blue-base"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
+        <div class="home red-home"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
+        <div class="home green-home"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
+        <div class="home yellow-home"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
+        <div class="home blue-home"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
         <div id="path-container"></div>
         <div class="center">
             <div class="tri rt"></div><div class="tri gt"></div>
             <div class="tri yt"></div><div class="tri bt"></div>
         </div>
     </div>
-
     <div class="ui">
-        <div style="font-size: 60px; margin-bottom: 10px;" id="dice-face">🎲</div>
+        <div style="font-size: 60px;" id="dice-face">🎲</div>
         <button id="roll-btn">ROLL DICE</button>
         <div id="status-bar">RED'S TURN</div>
     </div>
 
     <script>
         const container = document.getElementById('path-container');
-        // Standard Ludo Safe Points (Exit points + Mid-track safety)
-        const safeIndices = [91, 19, 103, 37, 121, 205, 135, 187]; 
+        // RE-CALCULATED INDEXES FOR 15x15 GRID
+        const safeIndices = [91, 19, 103, 37, 121, 205, 133, 187]; 
 
         for (let i = 0; i < 225; i++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
             if (safeIndices.includes(i)) cell.classList.add('safe-stop');
             
-            // Paths
-            if (i >= 106 && i <= 110) cell.style.background = "#ff7675"; // Red
-            if (i >= 7 && i < 90 && i % 15 === 7) cell.style.background = "#55efc4"; // Green
-            if (i >= 114 && i <= 118) cell.style.background = "#74b9ff"; // Blue
-            if (i >= 135 && i < 225 && i % 15 === 7) cell.style.background = "#ffeaa7"; // Yellow
+            // Grid paths
+            if (i >= 106 && i <= 110) cell.style.background = "#ff7675";
+            if (i >= 7 && i < 90 && i % 15 === 7) cell.style.background = "#55efc4";
+            if (i >= 114 && i <= 118) cell.style.background = "#74b9ff";
+            if (i >= 135 && i < 225 && i % 15 === 7) cell.style.background = "#ffeaa7";
             
             container.appendChild(cell);
         }
 
         const colors = ['red', 'green', 'yellow', 'blue'];
-        const startPositions = { 'red': 91, 'green': 19, 'yellow': 135, 'blue': 205 };
+        const startPositions = { 'red': 91, 'green': 19, 'yellow': 133, 'blue': 205 };
         let turn = 0;
         let lastRoll = 0;
         let canRoll = true;
@@ -84,8 +84,8 @@
         btn.style.backgroundColor = colors[turn];
 
         colors.forEach(c => {
-            const pockets = document.querySelectorAll(`.${c}-home .pocket`);
-            pockets.forEach(p => {
+            const homes = document.querySelectorAll(`.${c}-home .pocket`);
+            homes.forEach(p => {
                 const pc = document.createElement('div');
                 pc.className = 'piece';
                 pc.style.backgroundColor = c;
@@ -108,9 +108,8 @@
 
             if (lastRoll < 6 && piecesOut === 0) {
                 canRoll = false;
-                btn.style.opacity = "0.3";
                 document.getElementById('status-bar').innerText = "NO MOVES! SKIPPING...";
-                setTimeout(() => endTurn(false), 1000); // Silent skip
+                setTimeout(() => endTurn(false), 1000);
             } else {
                 canRoll = false;
                 btn.style.opacity = "0.5";
@@ -120,24 +119,5 @@
         function movePiece(pc, color) {
             if (color !== colors[turn] || lastRoll === 0) return;
 
-            if (lastRoll === 6 && pc.parentElement.classList.contains('pocket')) {
-                container.children[startPositions[color]].appendChild(pc);
-                endTurn(true); 
-            } else if (!pc.parentElement.classList.contains('pocket')) {
-                let currentIdx = Array.from(container.children).indexOf(pc.parentElement);
-                container.children[(currentIdx + lastRoll) % 225].appendChild(pc);
-                endTurn(lastRoll === 6);
-            }
-        }
-
-        function endTurn(isBonus) {
-            if (!isBonus) turn = (turn + 1) % 4;
-            lastRoll = 0;
-            canRoll = true;
-            btn.style.opacity = "1";
-            btn.style.backgroundColor = colors[turn];
-            document.getElementById('status-bar').innerText = colors[turn].toUpperCase() + "'S TURN";
-        }
-    </script>
-</body>
-</html>
+            // FIX: Ensure piece is appended to the grid cell, not hidden
+            if (lastRoll === 6 && pc.parentElement.classList.contains('
