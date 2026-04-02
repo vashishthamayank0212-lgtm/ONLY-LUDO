@@ -1,29 +1,39 @@
-const board = document.getElementById('board');
-
-// This creates exactly 225 squares for the 15x15 grid
-for (let i = 0; i < 225; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'cell';
-    board.appendChild(cell);
-}
+let lastRoll = 0;
 
 // Dice Logic
-const rollBtn = document.getElementById('roll-btn');
-const diceDisplay = document.getElementById('dice-display');
-const statusText = document.getElementById('status');
-
-rollBtn.addEventListener('click', () => {
-    const roll = Math.floor(Math.random() * 6) + 1;
+document.getElementById('roll-btn').addEventListener('click', () => {
+    lastRoll = Math.floor(Math.random() * 6) + 1;
     const diceFaces = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-    diceDisplay.innerText = diceFaces[roll];
-    statusText.innerText = "You rolled a " + roll;
+    document.getElementById('dice-display').innerText = diceFaces[lastRoll];
+    document.getElementById('status').innerText = "Move " + lastRoll + " spaces!";
 });
 
-// Add Pieces to the Bases
+// Movement Logic (Simplified)
+// We add a "Click" listener to all pieces
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('piece')) {
+        if (lastRoll === 0) {
+            alert("Roll the dice first!");
+            return;
+        }
+        
+        // This moves the piece visually by adding "Margin"
+        // In a real game, we would use a path array, 
+        // but for a beginner, this 'jumps' the piece.
+        let currentMargin = parseInt(e.target.style.marginLeft) || 0;
+        e.target.style.marginLeft = (currentMargin + (lastRoll * 30)) + "px";
+        
+        document.getElementById('status').innerText = "Piece moved! Next turn.";
+        lastRoll = 0; // Reset roll after moving
+    }
+});
+
+// Setup pieces in bases
 const bases = ['red-base', 'green-base', 'blue-base', 'yellow-base'];
 bases.forEach(id => {
     const base = document.getElementById(id);
     const p = document.createElement('div');
     p.className = 'piece';
+    p.style.backgroundColor = id.split('-')[0]; // Matches piece color to base
     base.appendChild(p);
 });
