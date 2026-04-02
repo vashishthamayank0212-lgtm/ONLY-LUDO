@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Ludo Pro - Final Fix</title>
+    <title>Ludo Pro - Silent Flow</title>
     <style>
         body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; font-family: sans-serif; color: white; margin: 0; padding: 20px; }
         #board { width: 450px; height: 450px; background: white; position: relative; border: 10px solid #333; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         
-        /* Bases */
         .home { position: absolute; width: 180px; height: 180px; display: grid; grid-template-columns: 1fr 1fr; padding: 20px; box-sizing: border-box; gap: 20px; z-index: 5; }
         .red-home { top:0; left:0; background: #d63031; }
         .green-home { top:0; right:0; background: #27ae60; }
@@ -16,14 +15,14 @@
         
         .pocket { background: white; border-radius: 50%; border: 2px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; }
         
-        /* Grid and Stops */
         #path-container { display: grid; grid-template-columns: repeat(15, 30px); grid-template-rows: repeat(15, 30px); position: absolute; top:0; left:0; }
         .cell { width: 30px; height: 30px; border: 0.5px solid #ddd; box-sizing: border-box; position: relative; }
+        
+        /* Corrected Stars */
         .safe-stop { background: #dfe6e9 !important; }
         .safe-stop::after { content: "★"; position: absolute; left: 7px; top: 2px; color: #636e72; font-size: 18px; }
         
-        /* Pieces */
-        .piece { width: 26px; height: 26px; border-radius: 50%; border: 3px solid #333; cursor: pointer; z-index: 100; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.4); margin: auto; }
+        .piece { width: 26px; height: 26px; border-radius: 50%; border: 3px solid #333; cursor: pointer; z-index: 100; transition: transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.4); margin: auto; }
 
         .center { position: absolute; top: 180px; left: 180px; width: 90px; height: 90px; z-index: 10; border: 2px solid #333; background: white; }
         .tri { position: absolute; width: 0; height: 0; border-style: solid; }
@@ -33,7 +32,7 @@
         .bt { border-width: 0 0 45px 45px; border-color: transparent transparent #0984e3; bottom:0; right:0; }
 
         .ui { margin-top: 20px; text-align: center; }
-        #roll-btn { padding: 15px 40px; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; color: white; }
+        #roll-btn { padding: 15px 40px; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; color: white; transition: 0.2s; }
         #status-bar { margin-top: 15px; font-weight: bold; background: #2c3e50; padding: 12px; border-radius: 8px; border-bottom: 4px solid gold; width: 250px; }
     </style>
 </head>
@@ -58,23 +57,25 @@
 
     <script>
         const container = document.getElementById('path-container');
-        const safeIndices = [19, 31, 52, 91, 103, 117, 135, 201]; 
+        // Standard Ludo Safe Points (Exit points + Mid-track safety)
+        const safeIndices = [91, 19, 103, 37, 121, 205, 135, 187]; 
 
         for (let i = 0; i < 225; i++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
             if (safeIndices.includes(i)) cell.classList.add('safe-stop');
             
-            if (i >= 106 && i <= 110) cell.style.background = "#ff7675";
-            if (i >= 7 && i < 90 && i % 15 === 7) cell.style.background = "#55efc4";
-            if (i >= 114 && i <= 118) cell.style.background = "#74b9ff";
-            if (i >= 135 && i < 225 && i % 15 === 7) cell.style.background = "#ffeaa7";
+            // Paths
+            if (i >= 106 && i <= 110) cell.style.background = "#ff7675"; // Red
+            if (i >= 7 && i < 90 && i % 15 === 7) cell.style.background = "#55efc4"; // Green
+            if (i >= 114 && i <= 118) cell.style.background = "#74b9ff"; // Blue
+            if (i >= 135 && i < 225 && i % 15 === 7) cell.style.background = "#ffeaa7"; // Yellow
             
             container.appendChild(cell);
         }
 
         const colors = ['red', 'green', 'yellow', 'blue'];
-        const startPositions = { 'red': 19, 'green': 37, 'yellow': 205, 'blue': 187 };
+        const startPositions = { 'red': 91, 'green': 19, 'yellow': 135, 'blue': 205 };
         let turn = 0;
         let lastRoll = 0;
         let canRoll = true;
@@ -100,18 +101,16 @@
             document.getElementById('dice-face').innerText = faces[lastRoll];
             document.getElementById('status-bar').innerText = colors[turn].toUpperCase() + " ROLLED " + lastRoll;
             
-            let myPieces = document.querySelectorAll('.piece');
             let piecesOut = 0;
-            myPieces.forEach(p => {
+            document.querySelectorAll('.piece').forEach(p => {
                 if (p.style.backgroundColor === colors[turn] && !p.parentElement.classList.contains('pocket')) piecesOut++;
             });
 
             if (lastRoll < 6 && piecesOut === 0) {
                 canRoll = false;
-                setTimeout(() => {
-                    alert("No moves! Passing turn.");
-                    endTurn(false);
-                }, 800);
+                btn.style.opacity = "0.3";
+                document.getElementById('status-bar').innerText = "NO MOVES! SKIPPING...";
+                setTimeout(() => endTurn(false), 1000); // Silent skip
             } else {
                 canRoll = false;
                 btn.style.opacity = "0.5";
@@ -125,10 +124,8 @@
                 container.children[startPositions[color]].appendChild(pc);
                 endTurn(true); 
             } else if (!pc.parentElement.classList.contains('pocket')) {
-                // Simplified movement logic for demo
                 let currentIdx = Array.from(container.children).indexOf(pc.parentElement);
-                let nextIdx = (currentIdx + lastRoll) % 225;
-                container.children[nextIdx].appendChild(pc);
+                container.children[(currentIdx + lastRoll) % 225].appendChild(pc);
                 endTurn(lastRoll === 6);
             }
         }
