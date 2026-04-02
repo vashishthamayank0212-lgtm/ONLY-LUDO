@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Ludo Pro - Fixed Stars & Pieces</title>
+    <title>Ludo Pro - Final Stability Fix</title>
     <style>
         body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; font-family: sans-serif; color: white; margin: 0; padding: 20px; }
         #board { width: 450px; height: 450px; background: white; position: relative; border: 10px solid #333; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         
-        /* Bases - These are z-index 5 */
+        /* Bases */
         .home { position: absolute; width: 180px; height: 180px; display: grid; grid-template-columns: 1fr 1fr; padding: 20px; box-sizing: border-box; gap: 20px; z-index: 5; }
         .red-home { top:0; left:0; background: #d63031; }
         .green-home { top:0; right:0; background: #27ae60; }
@@ -16,28 +16,29 @@
         
         .pocket { background: white; border-radius: 50%; border: 2px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; }
         
-        /* Grid - This is z-index 1 */
+        /* Grid and Stars */
         #path-container { display: grid; grid-template-columns: repeat(15, 30px); grid-template-rows: repeat(15, 30px); position: absolute; top:0; left:0; z-index: 1; }
         .cell { width: 30px; height: 30px; border: 0.5px solid #ddd; box-sizing: border-box; position: relative; display: flex; align-items: center; justify-content: center; }
         
-        /* THE STARS - Fixed Positions */
+        /* Stars at Start and 8th block */
         .safe-stop { background: #dfe6e9 !important; }
-        .safe-stop::after { content: "★"; position: absolute; left: 6px; top: 1px; color: #636e72; font-size: 20px; z-index: 0; }
+        .safe-stop::after { content: "★"; position: absolute; left: 6px; top: 1px; color: #636e72; font-size: 20px; }
         
-        /* PIECES - MUST BE HIGH Z-INDEX TO NOT DISAPPEAR */
-        .piece { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #333; cursor: pointer; z-index: 100 !important; position: absolute; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.4); }
+        /* Piece Visibility Fix */
+        .piece { width: 24px; height: 24px; border-radius: 50%; border: 3px solid #333; cursor: pointer; z-index: 100 !important; position: absolute; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.4); }
 
-        .center { position: absolute; top: 180px; left: 180px; width: 90px; height: 90px; z-index: 10; border: 2px solid #333; background: #eee; }
-        
+        .center { position: absolute; top: 180px; left: 180px; width: 90px; height: 90px; z-index: 0; border: 2px solid #333; background: #eee; }
+
         .ui { margin-top: 20px; text-align: center; }
         #roll-btn { padding: 15px 40px; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; color: white; }
-        #status-bar { margin-top: 15px; font-weight: bold; background: #2c3e50; padding: 12px; border-radius: 8px; border-bottom: 4px solid gold; width: 250px; }
+        #status-bar { margin-top: 15px; font-weight: bold; background: #2c3e50; padding: 12px; border-radius: 8px; border-bottom: 4px solid gold; min-width: 280px; }
+        #queue-display { margin-top: 5px; color: #f1c40f; font-size: 14px; }
     </style>
 </head>
 <body>
     <div id="board">
         <div class="home red-home"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
-        <div class="home green-home"><div class="pocket"></div><div class="pocket ="></div><div class="pocket"></div><div class="pocket"></div></div>
+        <div class="home green-home"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
         <div class="home yellow-home"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
         <div class="home blue-home"><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div><div class="pocket"></div></div>
         <div id="path-container"></div>
@@ -47,36 +48,32 @@
     <div class="ui">
         <div style="font-size: 60px;" id="dice-face">🎲</div>
         <button id="roll-btn">ROLL DICE</button>
+        <div id="queue-display">Pending: None</div>
         <div id="status-bar">RED'S TURN</div>
     </div>
 
     <script>
         const container = document.getElementById('path-container');
-        
-        // EXACT COORDINATES FOR STARS:
-        // 4 Starting points (Exit from base)
-        // 4 Safety points (The 8th block on each side)
+        // Correct Stars: Start points and 8th blocks
         const safeIndices = [91, 19, 133, 205, 103, 118, 52, 172]; 
+        const startPositions = { 'red': 91, 'green': 19, 'yellow': 133, 'blue': 205 };
 
         for (let i = 0; i < 225; i++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
             if (safeIndices.includes(i)) cell.classList.add('safe-stop');
             
-            // Paths
-            if (i >= 106 && i <= 110) cell.style.background = "#ff7675";
-            if (i >= 7 && i < 90 && i % 15 === 7) cell.style.background = "#55efc4";
-            if (i >= 114 && i <= 118) cell.style.background = "#74b9ff";
-            if (i >= 135 && i < 225 && i % 15 === 7) cell.style.background = "#ffeaa7";
+            // Re-apply path colors
+            if (i >= 106 && i <= 110) cell.style.background = "#ff7675"; // Red path
+            if (i >= 7 && i < 90 && i % 15 === 7) cell.style.background = "#55efc4"; // Green path
+            if (i >= 114 && i <= 118) cell.style.background = "#74b9ff"; // Blue path
+            if (i >= 135 && i < 225 && i % 15 === 7) cell.style.background = "#ffeaa7"; // Yellow path
             
             container.appendChild(cell);
         }
 
         const colors = ['red', 'green', 'yellow', 'blue'];
-        const startPositions = { 'red': 91, 'green': 19, 'yellow': 133, 'blue': 205 };
-        let turn = 0;
-        let lastRoll = 0;
-        let canRoll = true;
+        let turn = 0, rollQueue = [], canRoll = true;
 
         const btn = document.getElementById('roll-btn');
         btn.style.backgroundColor = colors[turn];
@@ -95,20 +92,63 @@
 
         btn.onclick = () => {
             if(!canRoll) return;
-            lastRoll = Math.floor(Math.random() * 6) + 1;
-            const faces = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-            document.getElementById('dice-face').innerText = faces[lastRoll];
+            let roll = Math.floor(Math.random() * 6) + 1;
+            rollQueue.push(roll);
+            document.getElementById('dice-face').innerText = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"][roll];
             
+            if (roll !== 6) {
+                canRoll = false;
+                btn.style.opacity = "0.5";
+                checkIfStuck();
+            }
+            updateUI();
+        };
+
+        function updateUI() {
+            document.getElementById('queue-display').innerText = "Pending: " + (rollQueue.length ? rollQueue.join(", ") : "None");
+            document.getElementById('status-bar').innerText = colors[turn].toUpperCase() + "'S TURN";
+            btn.style.backgroundColor = colors[turn];
+        }
+
+        function checkIfStuck() {
             let piecesOut = 0;
             document.querySelectorAll('.piece').forEach(p => {
                 if (p.dataset.color === colors[turn] && !p.parentElement.classList.contains('pocket')) piecesOut++;
             });
+            if (piecesOut === 0 && !rollQueue.includes(6)) {
+                setTimeout(() => { rollQueue = []; endTurn(); }, 1000);
+            }
+        }
 
-            if (lastRoll < 6 && piecesOut === 0) {
-                canRoll = false;
-                document.getElementById('status-bar').innerText = "NO MOVES! SKIPPING...";
-                setTimeout(() => endTurn(false), 1000);
-            } else {
-                canRoll = false;
-                btn.style.opacity = "0.5";
-                document.getElementById('status-bar').innerText = colors[turn].toUpperCase() + "
+        function movePiece(pc) {
+            if (pc.dataset.color !== colors[turn] || rollQueue.length === 0) return;
+            let roll = rollQueue.shift();
+            
+            if (roll === 6 && pc.parentElement.classList.contains('pocket')) {
+                container.children[startPositions[colors[turn]]].appendChild(pc);
+            } else if (!pc.parentElement.classList.contains('pocket')) {
+                let currentIdx = Array.from(container.children).indexOf(pc.parentElement);
+                container.children[(currentIdx + roll) % 225].appendChild(pc);
+            }
+            
+            realign(pc.parentElement);
+            updateUI();
+            if (rollQueue.length === 0) endTurn();
+        }
+
+        function realign(cell) {
+            if (!cell || cell.classList.contains('pocket')) return;
+            cell.querySelectorAll('.piece').forEach((p, i) => {
+                p.style.left = (i * 4) + "px"; p.style.top = (i * 4) + "px";
+            });
+        }
+
+        function endTurn() {
+            turn = (turn + 1) % 4;
+            rollQueue = []; canRoll = true;
+            btn.style.opacity = "1";
+            updateUI();
+        }
+    </script>
+</body>
+</html>
